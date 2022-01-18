@@ -1,4 +1,5 @@
 import React, { useState, useReducer, useEffect } from "react";
+import { v4 as uuidv4 } from "uuid";
 import "./index.css";
 const reduce = (categoryType, action) => {
   switch (action.value) {
@@ -38,6 +39,7 @@ export default function JokeTeller(props) {
   const [blurRange, setBlurRange] = useState(false);
   const [fetched, setFetched] = useState({});
   const [delivery, setDelivery] = useState(false);
+  const [arrayDel, setArrayDel] = useState({});
 
   useEffect(() => {
     onBlurCategory();
@@ -92,13 +94,38 @@ export default function JokeTeller(props) {
     api,
   ]);
 
+  const onClickDeliver = (event) => {
+    const deliverP = fetched.jokes.map((each) => {
+      if (each.id === event.target.id) {
+        return { ...each, isDel: !each.isDel };
+      } else {
+        return { ...each };
+      }
+    });
+    setFetched((prev) => ({ ...prev, jokes: deliverP }));
+  };
+
   const sendRequest = async () => {
     const response = await fetch(api);
     const data = await response.json();
     console.log(api);
     console.log(typeof data);
     console.log(data);
-    setFetched(data);
+    if (data.type === undefined) {
+      const datafetch = data.jokes.map((each) => {
+        return { ...each, id: uuidv4(), isDel: false };
+      });
+
+      const arrayD = {};
+      datafetch.map((each) => {
+        return (arrayD[each.id] = false);
+      });
+      data.jokes = datafetch;
+      setArrayDel(arrayD);
+      setFetched(data);
+    } else {
+      setFetched(data);
+    }
   };
   useEffect(() => {
     const rangeOf =
@@ -296,13 +323,13 @@ export default function JokeTeller(props) {
         console.log(each.type);
         DelButton = each.type === "twopart";
         return (
-          <div className="head">
+          <div className="head" key={each.id}>
             {each.type === "twopart" && (
               <div>
                 {console.log(DelButton)}
                 <h3>{each.setup}</h3>
-                {delivery && <p>{each.delivery}</p>}
-                <button onClick={() => setDelivery((prev) => !prev)}>
+                {each.isDel && <p>{each.delivery}</p>}
+                <button id={each.id} onClick={onClickDeliver}>
                   Delivery
                 </button>
               </div>
@@ -465,7 +492,8 @@ export default function JokeTeller(props) {
             </div>
           </div>
           <div className="field-cont">
-            <label>URL:</label><h2>{api}</h2>
+            <label>URL:</label>
+            <h2>{api}</h2>
             <div>
               <button type="button">clearForm</button>
               <button type="button" onClick={sendRequest}>
