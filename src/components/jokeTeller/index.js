@@ -22,7 +22,7 @@ export default function JokeTeller(props) {
     rangeData,
   } = props;
   const initialValue = "Any";
-  const [categoryType, dispatch] = useReducer(reduce, initialValue);
+  const [categoryType, setCategoryType] = useState(initialValue);
   const [values, setValues] = useState([]);
   const [selectedLang, setLang] = useState("en");
   const [rangeTaken, setRangeTaken] = useState([0, 1]);
@@ -55,11 +55,12 @@ export default function JokeTeller(props) {
     const searchSet = search === "" ? "" : `contains=${search}`;
     const rangeSet =
       JSON.stringify([Number(lowRange), Number(highRange)]) ===
-      JSON.stringify(rangeData[selectedLang])
+      (rangeData && JSON.stringify(rangeData[selectedLang]))
         ? ""
         : lowRange === highRange
         ? `idRange=${highRange}`
         : `idRange=${lowRange}-${highRange}`;
+    console.log(rangeSet);
     const countJokesSet = Number(countJokes) <= 1 ? "" : `amount=${countJokes}`;
     const allData = [
       langSet,
@@ -128,11 +129,15 @@ export default function JokeTeller(props) {
     }
   };
   useEffect(() => {
-    const rangeOf =
-      rangeData[selectedLang] === undefined ? [0, 1] : rangeData[selectedLang];
-    setLowRange(Math.min(...rangeOf));
-    setHighRange(Math.max(...rangeOf));
-    setRangeTaken(rangeOf);
+    if (rangeData) {
+      const rangeOf =
+        rangeData[selectedLang] === undefined
+          ? [0, 1]
+          : rangeData[selectedLang];
+      setLowRange(Math.min(...rangeOf));
+      setHighRange(Math.max(...rangeOf));
+      setRangeTaken(rangeOf);
+    }
   }, [rangeData, selectedLang]);
 
   const onBlurCategory = () => {
@@ -203,19 +208,20 @@ export default function JokeTeller(props) {
 
   const getOptions = () => {
     return (
-      <ul className="options-container">
-        {fetchedData.map((each) => (
-          <li key={each}>
-            <input
-              type="checkbox"
-              id={each}
-              value={each}
-              onChange={setCatValues}
-              disabled={typeCategory}
-            />
-            <label htmlFor={each}>{each}</label>
-          </li>
-        ))}
+      <ul id="options" className="options-container">
+        {fetchedData &&
+          fetchedData.map((each) => (
+            <li key={each}>
+              <input
+                type="checkbox"
+                id={each}
+                value={each}
+                onChange={setCatValues}
+                disabled={typeCategory}
+              />
+              <label htmlFor={each}>{each}</label>
+            </li>
+          ))}
       </ul>
     );
   };
@@ -230,13 +236,14 @@ export default function JokeTeller(props) {
           setLang(e.target.value);
         }}
       >
-        {languagesData.map((each) => {
-          return (
-            <option key={each.lang} value={each.lang}>
-              {each.lang}-{languageNames.of(each.lang)}
-            </option>
-          );
-        })}
+        {languagesData &&
+          languagesData.map((each) => {
+            return (
+              <option key={each.lang} value={each.lang}>
+                {each.lang}-{languageNames.of(each.lang)}
+              </option>
+            );
+          })}
       </select>
     );
   };
@@ -245,14 +252,15 @@ export default function JokeTeller(props) {
     return (
       <ul className="options-container field-cont">
         <li>(optional)</li>
-        {flagsData.map((each) => {
-          return (
-            <li key={each}>
-              <input type="checkbox" value={each} onChange={setFlageValues} />
-              <label>{each}</label>
-            </li>
-          );
-        })}
+        {flagsData &&
+          flagsData.map((each) => {
+            return (
+              <li key={each}>
+                <input type="checkbox" value={each} onChange={setFlageValues} />
+                <label>{each}</label>
+              </li>
+            );
+          })}
       </ul>
     );
   };
@@ -260,38 +268,39 @@ export default function JokeTeller(props) {
   const getFormats = () => {
     return (
       <ul className="options-container field-cont">
-        {formatData.map((each) => {
-          if (each === "json") {
-            return (
-              <li key={each}>
-                <input
-                  type="radio"
-                  name="format"
-                  value={each}
-                  defaultChecked
-                  onChange={(e) => {
-                    setFormat(e.target.value);
-                  }}
-                />
-                <label>default ({each})</label>
-              </li>
-            );
-          } else {
-            return (
-              <li key={each}>
-                <input
-                  type="radio"
-                  name="format"
-                  value={each}
-                  onChange={(e) => {
-                    setFormat(e.target.value);
-                  }}
-                />
-                <label>{each}</label>
-              </li>
-            );
-          }
-        })}
+        {formatData &&
+          formatData.map((each) => {
+            if (each === "json") {
+              return (
+                <li key={each}>
+                  <input
+                    type="radio"
+                    name="format"
+                    value={each}
+                    defaultChecked
+                    onChange={(e) => {
+                      setFormat(e.target.value);
+                    }}
+                  />
+                  <label>default ({each})</label>
+                </li>
+              );
+            } else {
+              return (
+                <li key={each}>
+                  <input
+                    type="radio"
+                    name="format"
+                    value={each}
+                    onChange={(e) => {
+                      setFormat(e.target.value);
+                    }}
+                  />
+                  <label>{each}</label>
+                </li>
+              );
+            }
+          })}
       </ul>
     );
   };
@@ -300,19 +309,21 @@ export default function JokeTeller(props) {
     console.log(typeDataPro);
     return (
       <ul className={`options-container field-cont ${nameBorder}`}>
-        {typeDataPro.map((each) => {
-          return (
-            <li key={each}>
-              <input
-                type="checkbox"
-                value={each}
-                onChange={setTypeValues}
-                defaultChecked
-              />
-              <label>{each}</label>
-            </li>
-          );
-        })}
+        {typeDataPro &&
+          typeDataPro.map((each) => {
+            return (
+              <li key={each}>
+                <input
+                  id={each}
+                  type="checkbox"
+                  value={each}
+                  onChange={setTypeValues}
+                  defaultChecked
+                />
+                <label htmlFor={each}>{each}</label>
+              </li>
+            );
+          })}
       </ul>
     );
   };
@@ -388,17 +399,21 @@ export default function JokeTeller(props) {
             </h3>
             <div className={`field-cont ${catBorder}`}>
               <input
+                id="any-id"
                 type="radio"
                 name="category"
+                value="Any"
                 defaultChecked
-                onChange={() => dispatch({ value: "Any" })}
+                onChange={(event) => setCategoryType(event.target.value)}
               />
               <label>Any</label>
               <div className="options-container">
                 <input
+                  id="custom-Id"
                   type="radio"
                   name="category"
-                  onChange={() => dispatch({ value: "Custom" })}
+                  value="Custom"
+                  onChange={(event) => setCategoryType(event.target.value)}
                 />
                 <label>Custom</label>
                 {getOptions()}
