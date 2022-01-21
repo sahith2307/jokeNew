@@ -1,16 +1,6 @@
-import React, { useState, useReducer, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 import "./index.css";
-const reduce = (categoryType, action) => {
-  switch (action.value) {
-    case "Any":
-      return action.value;
-    case "Custom":
-      return action.value;
-    default:
-      return "";
-  }
-};
 
 export default function JokeTeller(props) {
   const {
@@ -21,6 +11,7 @@ export default function JokeTeller(props) {
     typeDataPro,
     rangeData,
   } = props;
+  const namesChange = ["single", "twopart"];
   const initialValue = "Any";
   const [categoryType, setCategoryType] = useState(initialValue);
   const [values, setValues] = useState([]);
@@ -39,7 +30,6 @@ export default function JokeTeller(props) {
   const [blurRange, setBlurRange] = useState(false);
   const [fetched, setFetched] = useState({});
   const [delivery, setDelivery] = useState(false);
-  const [arrayDel, setArrayDel] = useState({});
 
   useEffect(() => {
     onBlurCategory();
@@ -122,9 +112,9 @@ export default function JokeTeller(props) {
         return (arrayD[each.id] = false);
       });
       data.jokes = datafetch;
-      setArrayDel(arrayD);
       setFetched(data);
     } else {
+      setDelivery(false);
       setFetched(data);
     }
   };
@@ -309,21 +299,20 @@ export default function JokeTeller(props) {
     console.log(typeDataPro);
     return (
       <ul className={`options-container field-cont ${nameBorder}`}>
-        {typeDataPro &&
-          typeDataPro.map((each) => {
-            return (
-              <li key={each}>
-                <input
-                  id={each}
-                  type="checkbox"
-                  value={each}
-                  onChange={setTypeValues}
-                  defaultChecked
-                />
-                <label htmlFor={each}>{each}</label>
-              </li>
-            );
-          })}
+        {namesChange.map((each) => {
+          return (
+            <li key={each}>
+              <input
+                id={each}
+                type="checkbox"
+                value={each}
+                onChange={setTypeValues}
+                checked={name.includes(each)}
+              />
+              <label htmlFor={each}>{each}</label>
+            </li>
+          );
+        })}
       </ul>
     );
   };
@@ -451,6 +440,7 @@ export default function JokeTeller(props) {
             </h3>
             <div className="field-cont">
               <input
+                id="contains"
                 type="text"
                 value={search}
                 onChange={(e) => {
@@ -468,6 +458,7 @@ export default function JokeTeller(props) {
               <label>{"  "}</label>
               <label>From:</label>
               <input
+                id="lowRange"
                 type="number"
                 min={Math.min(...rangeTaken)}
                 max={Math.max(...rangeTaken)}
@@ -478,6 +469,7 @@ export default function JokeTeller(props) {
               />{" "}
               <label>to</label>{" "}
               <input
+                id="highRange"
                 type="number"
                 min={Math.min(...rangeTaken)}
                 max={Math.max(...rangeTaken)}
@@ -494,21 +486,20 @@ export default function JokeTeller(props) {
             </h3>
             <div className="field-cont">
               <input
+                id="amount"
                 type="number"
                 min={1}
                 max={10}
                 value={countJokes}
                 onChange={(e) => {
-                  setCountJokes(
-                    Number(e.target.value) > 10 ? 10 : e.target.value
-                  );
+                  setCountJokes(e.target.value);
                 }}
               />
             </div>
           </div>
           <div className="field-cont">
             <label>URL:</label>
-            <h2>{api}</h2>
+            <h2 id="api"> {api}</h2>
             <div>
               <button type="button">clearForm</button>
               <button type="button" onClick={sendRequest}>

@@ -1,6 +1,7 @@
 import Enzyme from "enzyme";
 import Adapter from "@wojtekmaj/enzyme-adapter-react-17";
 import React, { useState as useStateSpy } from "react";
+import userEvent from "@testing-library/user-event";
 
 import JokeTeller from "../jokeTeller";
 import { fireEvent, getByRole, render, screen } from "@testing-library/react";
@@ -53,27 +54,65 @@ describe("<JokePage />", () => {
       expect(setState).toHaveBeenCalledWith("Custom");
     });
   });
-  describe("custom", () => {
-    const catList = [
-      "Christmas",
-      "Misc",
-      "Dark",
-      "Programming",
-      "Pun",
-      "Spooky",
-    ];
-    it("showID", async () => {
+  describe("contains", () => {
+    it("contains", () => {
       console.log(wrapper.html());
-      render(<JokeTeller/>)
-      const follow = await screen.findByTestId("Spooky");
-      expect(follow.exists()).toBe(true);
-
-      // catList.map((each) =>
-      //   wrapper
-      //     .find(`#${each}`)
-      //     .props()
-      //     .onChange({ target: { checked: false } })
-      // );
+      render(<JokeTeller />);
+      expect(wrapper.find("#contains").exists()).toBe(true);
+      wrapper
+        .find("#contains")
+        .props()
+        .onChange({ target: { value: "ry" } });
+      expect(setState).toHaveBeenCalledWith("ry");
+    });
+  });
+  describe("amount", () => {
+    it("amount", () => {
+      console.log(wrapper.html());
+      render(<JokeTeller />);
+      expect(wrapper.find("#amount").exists()).toBe(true);
+      wrapper
+        .find("#amount")
+        .props()
+        .onChange({ target: { value: "1" } });
+      expect(setState).toHaveBeenCalledWith("1");
+    });
+  });
+  describe("range", () => {
+    it("range", () => {
+      console.log(wrapper.html());
+      render(<JokeTeller />);
+      expect(wrapper.find("#lowRange").exists()).toBe(true);
+      wrapper
+        .find("#lowRange")
+        .props()
+        .onChange({ target: { value: "3" } });
+      expect(setState).toHaveBeenCalledWith("3");
+      expect(wrapper.find("#highRange").exists()).toBe(true);
+      wrapper
+        .find("#highRange")
+        .props()
+        .onChange({ target: { value: "6" } });
+      expect(setState).toHaveBeenCalledWith("6");
+    });
+  });
+  describe("types", () => {
+    it("range", () => {
+      console.log(wrapper.html());
+      render(<JokeTeller />);
+      expect(wrapper.find("#single").exists()).toBe(true);
+      // wrapper
+      //   .find("#single")
+      //   .props()
+      //   .onChange({ target: { checked: true } });
+      
+      expect(wrapper.find("#twopart").exists()).toBe(true);
+      expect(wrapper.find("#single").props().checked).toEqual(true);
+      wrapper
+        .find("#highRange")
+        .props()
+        .onChange({ target: { value: "6" } });
+      expect(setState).toHaveBeenCalledWith("6");
     });
   });
 });
