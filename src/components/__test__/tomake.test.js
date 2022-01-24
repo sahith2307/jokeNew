@@ -4,7 +4,13 @@ import React, { useState as useStateSpy } from "react";
 import userEvent from "@testing-library/user-event";
 
 import JokeTeller from "../jokeTeller";
-import { fireEvent, getByRole, render, screen } from "@testing-library/react";
+import {
+  fireEvent,
+  getByRole,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 
 Enzyme.configure({ adapter: new Adapter() });
 
@@ -80,7 +86,6 @@ describe("<JokePage />", () => {
   });
   describe("range", () => {
     it("range", () => {
-      console.log(wrapper.html());
       render(<JokeTeller />);
       expect(wrapper.find("#lowRange").exists()).toBe(true);
       wrapper
@@ -98,14 +103,13 @@ describe("<JokePage />", () => {
   });
   describe("types", () => {
     it("range", () => {
-      console.log(wrapper.html());
       render(<JokeTeller />);
       expect(wrapper.find("#single").exists()).toBe(true);
       // wrapper
       //   .find("#single")
       //   .props()
       //   .onChange({ target: { checked: true } });
-      
+
       expect(wrapper.find("#twopart").exists()).toBe(true);
       expect(wrapper.find("#single").props().checked).toEqual(true);
       wrapper
@@ -113,6 +117,33 @@ describe("<JokePage />", () => {
         .props()
         .onChange({ target: { value: "6" } });
       expect(setState).toHaveBeenCalledWith("6");
+    });
+  });
+  describe("sese", () => {
+    const categoryList = [
+      "Christmas",
+      "Spooky",
+      "Programming",
+      "Pun",
+      "Dark",
+      "Misc",
+    ];
+    categoryList.map(async (eachCategory) => {
+      test("async", async () => {
+        render(<JokeTeller />);
+        await waitFor(
+          async () => {
+            const element = await screen.findByTestId(eachCategory);
+            expect(element).toBeInTheDocument();
+            // fireEvent.change(element, {
+            //   target: { value: eachCategory, checked: true },
+            // });
+            // expect(element.value).toEqual(eachCategory);
+            // expect(element.checked).toEqual(true);
+          },
+          { timeout: 5000 }
+        );
+      }, 10000);
     });
   });
 });

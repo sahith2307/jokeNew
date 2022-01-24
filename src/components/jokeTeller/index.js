@@ -198,11 +198,12 @@ export default function JokeTeller(props) {
 
   const getOptions = () => {
     return (
-      <ul id="options" className="options-container">
+      <ul data-testid="normal" id="options" className="options-container">
         {fetchedData &&
           fetchedData.map((each) => (
             <li key={each}>
               <input
+                data-testid={each}
                 type="checkbox"
                 id={each}
                 value={each}
