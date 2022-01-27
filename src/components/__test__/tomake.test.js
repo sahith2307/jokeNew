@@ -1,8 +1,10 @@
-import Enzyme from "enzyme";
+/* eslint-disable jest/no-conditional-expect */
+/* eslint-disable testing-library/no-wait-for-side-effects */
+/* eslint-disable testing-library/no-wait-for-multiple-assertions */
+import Enzyme, { mount } from "enzyme";
 import Adapter from "@wojtekmaj/enzyme-adapter-react-17";
 import React, { useState as useStateSpy } from "react";
 import userEvent from "@testing-library/user-event";
-
 import JokeTeller from "../jokeTeller";
 import {
   fireEvent,
@@ -11,139 +13,193 @@ import {
   screen,
   waitFor,
 } from "@testing-library/react";
+import App from "./../../App";
+import { wait } from "@testing-library/user-event/dist/utils";
+describe("abc", () => {
+  const Mock = () => {
+    return <App />;
+  };
 
-Enzyme.configure({ adapter: new Adapter() });
-
-jest.mock("react", () => ({
-  ...jest.requireActual("react"),
-  useState: jest.fn(),
-}));
-
-describe("<JokePage />", () => {
-  let wrapper;
-  const setState = jest.fn();
-
-  beforeEach(() => {
-    useStateSpy.mockImplementation((init) => [init, setState]);
-    wrapper = Enzyme.mount(<JokeTeller />);
+  test("async", async () => {
+    render(<Mock />);
+    await waitFor(
+      async () => {
+        const e = await screen.findByTestId("nsfw");
+        expect(e).toBeInTheDocument();
+      },
+      { timeout: 5000 }
+    );
   });
-
-  afterEach(() => {
-    jest.clearAllMocks();
+  test("search", () => {
+    render(<App />);
+    const search = screen.getByTestId("contains");
+    expect(search).toBeInTheDocument();
+    fireEvent.change(search, { target: { value: "abc" } });
+    expect(search.value).toEqual("abc");
   });
-
-  describe("text", () => {
-    const languages = ["en", "cs", "de", "pt", "es", "fr"];
-    it("2dhdh", () => {
-      languages.map((each) =>
-        wrapper
-          .find("#languages")
-          .props()
-          .onChange({ target: { value: each } })
-      );
-
-      expect(setState).toHaveBeenCalledWith("es");
+  describe("low", () => {
+    test("low", () => {
+      render(<App />);
+      const low = screen.getByTestId("lowRange");
+      expect(low).toBeInTheDocument();
+      fireEvent.change(low, { target: { value: "1" } });
+      expect(low.value).toEqual("1");
+      const api = screen.getByTestId("api");
+      expect(api.textContent).toContain("1");
     });
   });
-  describe("any", () => {
-    it("showID", () => {
-      wrapper
-        .find("#any-id")
-        .props()
-        .onChange({ target: { value: "Any" } });
-      // expect(wrapper.find("#any-id").value).toBe("Any");
-      expect(setState).toHaveBeenCalledWith("Any");
-      wrapper
-        .find("#custom-Id")
-        .props()
-        .onChange({ target: { value: "Custom" } });
-      expect(setState).toHaveBeenCalledWith("Custom");
-    });
-  });
-  describe("contains", () => {
-    it("contains", () => {
-      console.log(wrapper.html());
-      render(<JokeTeller />);
-      expect(wrapper.find("#contains").exists()).toBe(true);
-      wrapper
-        .find("#contains")
-        .props()
-        .onChange({ target: { value: "ry" } });
-      expect(setState).toHaveBeenCalledWith("ry");
+  describe("high", () => {
+    test("high", () => {
+      render(<App />);
+      const high = screen.getByTestId("highRange");
+      expect(high).toBeInTheDocument();
+      fireEvent.change(high, { target: { value: "7" } });
+      expect(high.value).toEqual("7");
+      const api = screen.getByTestId("api");
+      expect(api.textContent).toContain("7");
     });
   });
   describe("amount", () => {
-    it("amount", () => {
-      console.log(wrapper.html());
-      render(<JokeTeller />);
-      expect(wrapper.find("#amount").exists()).toBe(true);
-      wrapper
-        .find("#amount")
-        .props()
-        .onChange({ target: { value: "1" } });
-      expect(setState).toHaveBeenCalledWith("1");
+    test("amount", () => {
+      render(<App />);
+      const amount = screen.getByTestId("amount");
+      expect(amount).toBeInTheDocument();
+      fireEvent.change(amount, { target: { value: "9" } });
+      expect(amount.value).toEqual("9");
+      const api = screen.getByTestId("api");
+      expect(api.textContent).toContain("9");
     });
   });
-  describe("range", () => {
-    it("range", () => {
-      render(<JokeTeller />);
-      expect(wrapper.find("#lowRange").exists()).toBe(true);
-      wrapper
-        .find("#lowRange")
-        .props()
-        .onChange({ target: { value: "3" } });
-      expect(setState).toHaveBeenCalledWith("3");
-      expect(wrapper.find("#highRange").exists()).toBe(true);
-      wrapper
-        .find("#highRange")
-        .props()
-        .onChange({ target: { value: "6" } });
-      expect(setState).toHaveBeenCalledWith("6");
+  describe("cat", () => {
+    test("async", async () => {
+      render(<Mock />);
+      await waitFor(
+        async () => {
+          const e = await screen.findByTestId("Spooky-id");
+          expect(e).toBeInTheDocument();
+          fireEvent.change(e, { target: { checked: true } });
+          expect(e.checked).toEqual(true);
+        },
+        { timeout: 6000 }
+      );
     });
   });
-  describe("types", () => {
-    it("range", () => {
-      render(<JokeTeller />);
-      expect(wrapper.find("#single").exists()).toBe(true);
-      // wrapper
-      //   .find("#single")
-      //   .props()
-      //   .onChange({ target: { checked: true } });
+  describe("categories", () => {
+    test("any", () => {
+      render(<Mock />);
+      const any = screen.getByTestId("any");
+      expect(any).toBeInTheDocument();
+      expect(any.checked).toEqual(true);
+      fireEvent.click(any);
+      expect(any.checked).toEqual(true);
+      const api = screen.getByTestId("api");
+      expect(api.textContent).toContain("Any");
+    }, 10000);
+    test("custom", () => {
+      render(<Mock />);
+      const custom = screen.getByTestId("custom");
+      expect(custom).toBeInTheDocument();
+      expect(custom.checked).toEqual(false);
+      fireEvent.click(custom);
+      expect(custom.checked).toEqual(true);
+      const api = screen.getByTestId("api");
+      expect(api.textContent).not.toContain("Any");
+    });
+  });
+  describe("languages", () => {
+    const languages = ["en", "cs", "de", "pt", "es", "fr"];
+    test("df", async () => {
+      render(<Mock />);
+      await waitFor(async () => {
+        const language = await screen.findByTestId("languages");
+        expect(language).toBeInTheDocument();
+        fireEvent.change(language, { target: { value: "fr" } });
+        expect(language.value).toEqual("fr");
+        const api = screen.getByTestId("api");
+        expect(api.textContent).toContain("fr");
+        
+      });
+    });
+  });
+  describe("type", () => {
+    test("type", async () => {
+      render(<Mock />);
+      await waitFor(
+        async () => {
+          const type = await screen.findByTestId("single");
+          fireEvent.click(type);
+          expect(type.value).toEqual("single");
+        },
+        { timeout: 5000 }
+      );
+      const api = screen.getByTestId("api");
+      expect(api.textContent).not.toContain("single");
+    }, 10000);
+  });
+  describe("change", () => {
+    test("type", async () => {
+      render(<Mock />);
+      let type;
+      let e;
+      let j;
+      const custom = screen.getByTestId("custom");
+      fireEvent.click(custom);
+      await waitFor(
+        async () => {
+          e = await screen.findByTestId("Spooky-id");
+          j = await screen.findByTestId("Misc-id");
+          type = await screen.findByTestId("api");
+        },
+        { timeout: 5000 }
+      );
 
-      expect(wrapper.find("#twopart").exists()).toBe(true);
-      expect(wrapper.find("#single").props().checked).toEqual(true);
-      wrapper
-        .find("#highRange")
-        .props()
-        .onChange({ target: { value: "6" } });
-      expect(setState).toHaveBeenCalledWith("6");
-    });
+      fireEvent.click(e);
+      fireEvent.click(j);
+      expect(e.checked).toEqual(true);
+      expect(type.textContent).toContain("Spooky");
+      expect(type.textContent).toContain("Misc");
+    }, 10000);
   });
-  describe("sese", () => {
-    const categoryList = [
-      "Christmas",
-      "Spooky",
-      "Programming",
-      "Pun",
-      "Dark",
-      "Misc",
-    ];
-    categoryList.map(async (eachCategory) => {
-      test("async", async () => {
-        render(<JokeTeller />);
-        await waitFor(
-          async () => {
-            const element = await screen.findByTestId(eachCategory);
-            expect(element).toBeInTheDocument();
-            // fireEvent.change(element, {
-            //   target: { value: eachCategory, checked: true },
-            // });
-            // expect(element.value).toEqual(eachCategory);
-            // expect(element.checked).toEqual(true);
-          },
-          { timeout: 5000 }
-        );
-      }, 10000);
-    });
+  describe("check parts", () => {
+    test("type", async () => {
+      render(<Mock />);
+      const send = screen.getByTestId("sendRequest");
+      const joke = screen.getByTestId("joke");
+
+      fireEvent.click(send);
+      await waitFor(
+        async () => {
+          expect(joke.textContent).toContain(" ");
+          if (joke.textContent.endsWith("Delivery")) {
+            expect(screen.getByTestId("twopartTest")).toBeInTheDocument();
+          }
+          console.log(joke.textContent);
+        },
+        { timeout: 5000 }
+      );
+    }, 10000);
+  });
+  describe("checkParts", () => {
+    test("type", async () => {
+      render(<Mock />);
+      const send = screen.getByTestId("sendRequest");
+      let joke;
+
+      const amount = screen.getByTestId("amount");
+      fireEvent.change(amount, { target: { value: "9" } });
+      fireEvent.click(send);
+      await waitFor(
+        async () => {
+          joke = screen.getByTestId("joke");
+          expect(joke.textContent).toContain(" ");
+          if (joke.textContent.endsWith("Delivery")) {
+            expect(screen.getByTestId("twopartTest")).toBeInTheDocument();
+          }
+        },
+        { timeout: 5000 }
+      );
+
+      console.log(joke.textContent);
+    }, 10000);
   });
 });

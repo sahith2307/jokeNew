@@ -11,12 +11,20 @@ export default function JokeTeller(props) {
     typeDataPro,
     rangeData,
   } = props;
+  const categoryList = [
+    "Christmas",
+    "Spooky",
+    "Programming",
+    "Pun",
+    "Dark",
+    "Misc",
+  ];
   const namesChange = ["single", "twopart"];
   const initialValue = "Any";
   const [categoryType, setCategoryType] = useState(initialValue);
   const [values, setValues] = useState([]);
   const [selectedLang, setLang] = useState("en");
-  const [rangeTaken, setRangeTaken] = useState([0, 1]);
+  const [rangeTaken, setRangeTaken] = useState([0, 6]);
   const [lowRange, setLowRange] = useState(0);
   const [highRange, setHighRange] = useState(0);
   const [countJokes, setCountJokes] = useState(1);
@@ -45,7 +53,7 @@ export default function JokeTeller(props) {
     const searchSet = search === "" ? "" : `contains=${search}`;
     const rangeSet =
       JSON.stringify([Number(lowRange), Number(highRange)]) ===
-      (rangeData && JSON.stringify(rangeData[selectedLang]))
+      JSON.stringify(rangeData[selectedLang])
         ? ""
         : lowRange === highRange
         ? `idRange=${highRange}`
@@ -203,7 +211,7 @@ export default function JokeTeller(props) {
           fetchedData.map((each) => (
             <li key={each}>
               <input
-                data-testid={each}
+                data-testid={`${each}-id`}
                 type="checkbox"
                 id={each}
                 value={each}
@@ -222,6 +230,7 @@ export default function JokeTeller(props) {
       <select
         name="languages"
         id="languages"
+        data-testid="languages"
         value={selectedLang}
         onChange={(e) => {
           setLang(e.target.value);
@@ -241,12 +250,12 @@ export default function JokeTeller(props) {
 
   const getFlags = () => {
     return (
-      <ul className="options-container field-cont">
+      <ul id="ul" className="options-container field-cont">
         <li>(optional)</li>
         {flagsData &&
           flagsData.map((each) => {
             return (
-              <li key={each}>
+              <li key={each} data-testid={each} id={each}>
                 <input type="checkbox" value={each} onChange={setFlageValues} />
                 <label>{each}</label>
               </li>
@@ -305,6 +314,7 @@ export default function JokeTeller(props) {
             <li key={each}>
               <input
                 id={each}
+                data-testid={each}
                 type="checkbox"
                 value={each}
                 onChange={setTypeValues}
@@ -320,54 +330,65 @@ export default function JokeTeller(props) {
   const dataFetchDis = () => {
     let DelButton = false;
     if (fetched.amount) {
-      return fetched.jokes.map((each) => {
-        console.log(each.type);
-        DelButton = each.type === "twopart";
-        return (
-          <div className="head" key={each.id}>
-            {each.type === "twopart" && (
-              <div>
-                {console.log(DelButton)}
-                <h3>{each.setup}</h3>
-                {each.isDel && <p>{each.delivery}</p>}
-                <button id={each.id} onClick={onClickDeliver}>
-                  Delivery
-                </button>
+      return (
+        <div data-testid="joke">
+          {fetched.jokes.map((each) => {
+            console.log(each.type);
+            DelButton = each.type === "twopart";
+            return (
+              <div data-testid="isThere" className="head" key={each.id}>
+                {each.type === "twopart" && (
+                  <div>
+                    {console.log(DelButton)}
+                    <h3>{each.setup}</h3>
+                    {each.isDel && <p>{each.delivery}</p>}
+                    <button
+                      data-testid="twopartTest"
+                      id={each.id}
+                      onClick={onClickDeliver}
+                    >
+                      Delivery
+                    </button>
+                  </div>
+                )}
+                {each.type === "single" && (
+                  <div data-testid="isThere">
+                    <p data-testid="singleTest" id="singleTest">
+                      {each.joke}
+                    </p>
+                  </div>
+                )}
+                {each.type === undefined && (
+                  <div>
+                    <p>(Set parameters and click "Send Request" above)</p>
+                  </div>
+                )}
               </div>
-            )}
-            {each.type === "single" && (
-              <div>
-                <p>{each.joke}</p>
-              </div>
-            )}
-            {each.type === undefined && (
-              <div>
-                <p>(Set parameters and click "Send Request" above)</p>
-              </div>
-            )}
-          </div>
-        );
-      });
+            );
+          })}
+        </div>
+      );
     } else {
       return (
-        <div className="head">
+        <div data-testid="joke" className="head">
           {fetched.type === "twopart" && (
-            <div>
-              <h2>{fetched.setup}</h2>
+            <div data-testid="isThere">
+              <p>{fetched.setup}</p>
               {delivery && <p>{fetched.delivery}</p>}
-              <button onClick={() => setDelivery((prev) => !prev)}>
+              <button
+                data-testid="twopartTest"
+                id="twopartTest"
+                onClick={() => setDelivery((prev) => !prev)}
+              >
                 Delivery
               </button>
             </div>
           )}
           {fetched.type === "single" && (
-            <div>
-              <p>{fetched.joke}</p>
-            </div>
-          )}
-          {fetched.type === undefined && (
-            <div>
-              <p>(Set parameters and click "Send Request" above)</p>
+            <div data-testid="isThere">
+              <p data-testid="singleTest" id="singleTest">
+                {fetched.joke}
+              </p>
             </div>
           )}
         </div>
@@ -390,6 +411,7 @@ export default function JokeTeller(props) {
             <div className={`field-cont ${catBorder}`}>
               <input
                 id="any-id"
+                data-testid="any"
                 type="radio"
                 name="category"
                 value="Any"
@@ -400,6 +422,7 @@ export default function JokeTeller(props) {
               <div className="options-container">
                 <input
                   id="custom-Id"
+                  data-testid="custom"
                   type="radio"
                   name="category"
                   value="Custom"
@@ -441,6 +464,7 @@ export default function JokeTeller(props) {
             </h3>
             <div className="field-cont">
               <input
+                data-testid="contains"
                 id="contains"
                 type="text"
                 value={search}
@@ -460,6 +484,7 @@ export default function JokeTeller(props) {
               <label>From:</label>
               <input
                 id="lowRange"
+                data-testid="lowRange"
                 type="number"
                 min={Math.min(...rangeTaken)}
                 max={Math.max(...rangeTaken)}
@@ -471,6 +496,7 @@ export default function JokeTeller(props) {
               <label>to</label>{" "}
               <input
                 id="highRange"
+                data-testid="highRange"
                 type="number"
                 min={Math.min(...rangeTaken)}
                 max={Math.max(...rangeTaken)}
@@ -488,6 +514,7 @@ export default function JokeTeller(props) {
             <div className="field-cont">
               <input
                 id="amount"
+                data-testid="amount"
                 type="number"
                 min={1}
                 max={10}
@@ -500,10 +527,18 @@ export default function JokeTeller(props) {
           </div>
           <div className="field-cont">
             <label>URL:</label>
-            <h2 id="api"> {api}</h2>
+            <h2 id="api" data-testid="api">
+              {" "}
+              {api}
+            </h2>
             <div>
               <button type="button">clearForm</button>
-              <button type="button" onClick={sendRequest}>
+              <button
+                data-testid="sendRequest"
+                id="sendRequest"
+                type="button"
+                onClick={sendRequest}
+              >
                 send request
               </button>
             </div>
